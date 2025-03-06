@@ -1,14 +1,21 @@
 ---
-title:
-author:
+title: Time Series Lab
+author: Zoe Zhou
 format: 
+  html:
+    embed-resources: true
+    code-fold: show
+    toc: true
+execute:
+  warning: false
+  message: false
 ---
 
 ```{r setup}
 library(tidyverse)
 library(here)
 # library(lubridate)
-library(tsibble)
+library(tsibble) # new lib!
 library(feasts)
 library(fable)
 ```
@@ -78,14 +85,32 @@ We can use `filter_index()` specifically to help us filter data by time spans. S
 >*start ~ .*: from a specified beginning to the very end of the data. Supported index type: POSIXct (to seconds), Date, yearweek, yearmonth/yearmon, yearquarter/yearqtr, hms/difftime & numeric.
 
 So for example "2010-12" ~ "2011-01" would filter from December 2010 through January 2011.
+```{r}
+toolik_ts %>% 
+  filter_index("2010-12","2011-01") %>% 
+  tail()
+```
 
 Try to filter the Toolik tsibble from April 10, 2006 to May 15, 2006.
+```{r}
+toolik_ts %>% 
+  filter_index("2006-04","2006-05-15")
+```
 
 Filter another index from December 20, 2020 to the end of the dataset.
+```{r}
+toolik_ts %>% 
+  filter_index("2020-12-20"~.)
+
+```
 
 `filter_index()` also accepts multiple periods using commas to separate the intervals. Try to filter from December 2010 through January 2011, and from September 2, 2013 to October 31, 2014.
 
 Don't worry about saving the output to another object.
+```{r}
+toolik_ts %>% 
+  filter_index("2010-12"~"2011-01", "2013-09-02"~"2014-10-31")
+```
 
 
 
@@ -154,6 +179,11 @@ Explore the `energy_df` object as it currently exists. Notice that there is a co
 
 
 ```{r}
+energy_ts <- energy_df %>% 
+  mutate(date= yearmonth(yrmonth)) %>% 
+  as_tsibble(index=date, 
+             key=sector) # group by sector if same date
+
 
 ```
 

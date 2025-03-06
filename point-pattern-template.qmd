@@ -4,6 +4,7 @@ author:
   - "Casey O'Hara"
   - Nathan Grimes
   - Allison Horst
+  - Zoe Zhou
 date: today
 format: 
   html:
@@ -83,6 +84,7 @@ humboldt_win <- as.owin(humboldt_sf)
 ### Combine as a point pattern object (points + window):
 voles_full <- ppp(voles_ppp$x, voles_ppp$y, window = humboldt_win)
 
+
 plot(voles_full) 
 
 ```
@@ -97,11 +99,12 @@ Run to see vole "hotspots" by kernel density, then see what happens when you cha
 voles_density <- density(voles_full, sigma = 5000) ### try different sigmas
 
 plot(voles_density)
+
 ```
 
 Describe what the sigma parameter does.
 
-
+plotting the distribution around obs points. sigma controls variance around the points, small sigma might overfit, bigger sigma is more generalized. 
 ## Nearest neighbor (G-function)
 
 In this week's lecture, we learned about distance methods to compare our point pattern to a scenario of complete spatial randomness. Here, we'll use both the G- and L-functions (L function is the K-function, standardized...interpretation is the same) to compare our observed point pattern to a simulated CSR scenario, to help us determine if it is *more clustered* or *more uniform* than CSR.
@@ -130,12 +133,25 @@ plot(gfunction_out)
 ```
 
 
-The observed line is much higher than the bounds of the theoritical line. We have sufficient evidence to conclude the voles are not randomly distributed.  
+The observed line is much higher than the bounds of the theoritical line. We have sufficient evidence to conclude the voles are not randomly distributed.  解：our obs is clustered! 
 
 While the base plot looks good. Let's make our own in ggplot to practice the our wrangling skills. What is the class of the `gfunction_out` object? What are the column names? What do you think the `obs`, `theo`, `lo`, and `hi` columns represent? How do we pivot the table to a useful dataframe to plot in ggplot?
 
 
 
+```{r}
+class(gfunction_out)
+gfunction_df <- as.data.frame(gfunction_out)
+g_long <- gfunction_df %>% 
+  pivot_longer(cols = c('obs','theo','lo','hi'), names_to = 'model', values_to = "G_r")
+
+g_long %>% 
+  ggplot(aes(x=r, y = G_r, group = model))+
+  geom_line(aes(color = model)) +
+  theme_minimal() +
+  labs(x = 'radius (m)', y = 'G(r)')
+
+```
 
 ### L-Function
  
@@ -148,6 +164,25 @@ With the same `envelope()` function from before, calculate the L-function. Becau
 Plot the L-function and interpret the results.
 
 
+```{r}
+r_vec <- seq(0, 80000, 5000)
+
+lfunction_out <- envelope(voles_full, fun = Lest, r = r_vec, nsim = 10)
+plot(lfunction_out)
+
+lfunction_df <- as.data.frame(lfunction_out)
+l_long <- lfunction_df %>% 
+  pivot_longer(cols = c('obs','theo','lo','hi'), names_to = 'model', values_to = "L_r")
+```
+
+
+```{r}
+l_long %>% 
+  ggplot(aes(x=r, y = L_r, group = model))+
+  geom_line(aes(color = model)) +
+  theme_minimal() +
+  labs(x = 'radius (m)', y = 'L(r)')
+```
 
 
 
