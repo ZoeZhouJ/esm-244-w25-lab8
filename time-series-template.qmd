@@ -203,8 +203,11 @@ ggplot(data = energy_ts, aes(x = date, y = energy_total, color = sector)) +
 Looks like there are some interesting things happening. Focus on residential:
 
 -   Is there an overall trend?
+    For residential, increase but platau
 -   Is there seasonality?
+    Yes, stronger in residential than industrial. 
 -   Any cyclicality evident?
+    not really, 
 -   Any other notable patterns, outliers, etc.?
 
 
@@ -217,7 +220,7 @@ A seasonplot can help point out seasonal patterns, and help to glean insights ov
 ```{r}
 energy_ts %>% 
   filter(sector == 'residential') %>%
-  gg_season(y = energy_total, pal = hcl.colors(n = 9)) +
+  gg_season(y = energy_total, pal = hcl.colors(n = 9)) + 
   theme_minimal() +
   labs(x = "month",
        y = "residential energy consumption (trillion BTU)")
@@ -234,6 +237,7 @@ Let's explore the data a couple more ways:
 ### Subseries plot:
 
 ```{r}
+
 energy_ts %>% gg_subseries(energy_total)
 ```
 
@@ -326,6 +330,7 @@ ggplot(data = energy_predicted) +
 
 
 Now let's explore the **residuals**. Remember, some important considerations: Residuals should be uncorrelated, centered at 0, and ideally normally distributed. One way we can check the distribution is with a histogram:
+
 
 ```{r}
 ggplot(data = energy_predicted, aes(x = .resid)) +
